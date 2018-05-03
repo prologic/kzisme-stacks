@@ -6,7 +6,7 @@ Set set of Docker Stacks for kzisme
 * Grafana
 * Node Exporter (*globally deployed*)
 
-## Pre-requisites
+## Pre-requisits
 
 Make sure you have a Docker Swarm mode cluster set-up.
 
