@@ -1,0 +1,78 @@
+version: "3.3"
+
+services:
+  prometheus:
+    image: prom/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.min-block-duration=15m
+      - --storage.tsdb.max-block-duration=1h
+      - --storage.tsdb.retention=90d
+    configs:
+      - source: prometheus
+        target: /etc/prometheus/prometheus.yml
+    networks:
+      - prometheus
+      - bridge
+    ports:
+      - "9090:9090/tcp"
+    volumes:
+      - prometheus:/prometheus
+    deploy:
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+
+  grafana:
+    image: grafana/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=passw0rd1
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ALERTING_ENABLED=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    networks:
+      - bridge
+    ports:
+      - "3000:3000/tcp"
+    volumes:
+      - grafana:/var/lib/grafana
+    deploy:
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+
+  node_exporter:
+    image: prom/node-exporter
+    networks:
+      - prometheus
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /etc/hostname:/etc/nodename
+    command:
+      - '--path.sysfs=/host/sys'
+      - '--path.procfs=/host/proc'
+      - '--collector.textfile.directory=/etc/node-exporter/'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--no-collector.ipvs'
+    deploy:
+      mode: global
+
+networks:
+  bridge:
+    external:
+      name: bridge
+  prometheus:
+    external: true
+
+configs:
+  prometheus:
+    file: ./configs/prometheus.yml
+
+volumes:
+  grafana:
+    external: true
+  prometheus:
+    external: true
