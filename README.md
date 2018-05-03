@@ -6,6 +6,11 @@ Set set of Docker Stacks for kzisme
 * Grafana
 * Node Exporter (*globally deployed*)
 
+## Requirements
+
+* Docker v17.06+
+  * Using v3.3 stack configs with support for config files
+
 ## Pre-requisites
 
 Make sure you have a Docker Swarm mode cluster set-up.
